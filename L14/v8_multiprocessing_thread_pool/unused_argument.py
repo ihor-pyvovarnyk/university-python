@@ -8,9 +8,12 @@ NUMBER_OF_WORKERS = 3
 
 def main():
     pool = ThreadPool(NUMBER_OF_WORKERS)
-    with pool:
-        results = pool.map(make_request, REPEAT_NUMBER * [None])
-        print(f'Number of results: {len(results)}')
+
+    results = pool.map(make_request, REPEAT_NUMBER * [None])
+    print(f'Number of results: {len(results)}')
+
+    pool.terminate()
+    pool.join()
 
 def make_request(_required_but_unused_argument):
     return requests.get('http://httpbin.org/delay/1').json()
