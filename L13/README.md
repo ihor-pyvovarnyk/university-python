@@ -580,6 +580,267 @@ Got:
 
 ## Організація тестів
 
+На відміну від тестів у документації, при використанні пакету unittest тести знаходяться в окремому файлі. Як правило цей файл називають назвою модуля, що тестується, з префіксом “test_”. Самі тести знаходяться в методах класів, що наслідуються від базового класу “unittest.TestCase”. Назви методів тестів також починаються з префікса “test”, за яким слідує назва тесту, методи, що не починаються з префіксу “test” не будуть тестами та можуть бути допоміжними методами.
+
+`test_main.py`
+```python
+import unittest
+
+class TestMain(unittest.TestCase):
+
+    def test_intersection(self):
+        pass
+```
+
+## Запуск тестів
+
+Як і пакет doctest, пакет unittest дозволяє запускати тести при використанні його як команди. Запустимо створений модуль з одним пустим тестом.
+
+```shell
+$ python -m unittest test_main.py 
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+```
+
+## Перевірки
+
+Тепер змінимо код тесту, щоб він перевіряв правильність виконання функції, що тестується.
+
+`test_main.py`
+```python
+import unittest
+from main import intersection
+
+class TestMain(unittest.TestCase):
+
+    def test_intersection(self):
+        result = intersection(1, 2, 5, -1, 2, 3)
+        if result != (1, 2):
+            raise Exception()
+```
+
+Запустимо тест та бачимо, що він виконується успішно
+
+```shell
+$ python -m unittest test_main.py 
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+```
+
+Тепер запустимо аналогічний тест, що використовує некоректну версію функції:
+
+```shell
+$ python -m unittest test_incorrect_main.py 
+E
+======================================================================
+ERROR: test_intersection (test_incorrect_main.TestMain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ihorpyvovarnyk/Workspace/university-python/L13/3_unittest/v2/test_incorrect_main.py", line 9, in test_intersection
+    raise Exception()
+Exception
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)
+```
+
+Бачимо, що тест завершується помилкою, це показує з буква замість крапки на початку виводу. 
+
+Звичайно постійно вручну викликати “raise Exception()“ не надто зручно, тому розглянемо інші варіанти.
+
+### Інструкція assert
+
+Раніше ми вручну викидали виняток, однак Python має інструкцію “assert”, що дозволяє викидати винятки при невиконанні умови з меншою кількістю коду.
+
+Інструкція assert приймає умову, при виконання якої нічого не відбувається, а при невиконання — викидається виняток AssertionError. Також можна передати опціональний параметр з додатковими даними для винятку з поясненням помилки чи будь-якими даними для полегшення ідентифікації причин помилки. Відповідно є два варіанти використання інструкції assert:
+
+```python
+assert condition
+assert condition, data
+```
+
+Якщо інструкція assert була б функцією, то вона мала б наступний вигляд:
+
+```python
+def _assert(condition, data=None):
+    if not condition:
+        raise AssertionError(data)
+```
+
+Тепер використаємо інструкцію assert у тесті.
+
+`test_main.py`
+```python
+import unittest
+from main import intersection
+
+class TestMain(unittest.TestCase):
+
+    def test_intersection(self):
+        result = intersection(1, 2, 5, -1, 2, 3)
+        assert (1, 2) == result
+```
+
+Запустимо тест, щоб переконатись в коректній роботі інструкції assert.
+
+```shell
+$ python -m unittest test_main.py 
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+```
+
+Тепер запустимо аналогічний тест з інструкцією assert для некоректної версії функції.
+
+```shell
+$ python -m unittest test_incorrect_main.py
+F
+======================================================================
+FAIL: test_intersection (test_incorrect_main.TestMain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ihorpyvovarnyk/Workspace/university-python/L13/3_unittest/v3/test_incorrect_main.py", line 8, in test_intersection
+    assert (1, 2) == result
+AssertionError
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)
+```
+
+Бачимо, що був викинутий виняток AssertionError, однак ми не передали ніяких додаткових даних, що можуть допомогти в ідентифікації проблеми при непроходженні тесту, тому передамо як дані, наприклад, отриманий неправильний результат.
+
+`test_main.py`
+```python
+import unittest
+from main import intersection
+
+class TestMain(unittest.TestCase):
+
+    def test_intersection(self):
+        result = intersection(1, 2, 5, -1, 2, 3)
+        assert (1, 2) == result, result
+```
+
+Тепер знову запустимо такий же ж тест для некоректної версії функції.
+
+```shell
+$ python -m unittest test_incorrect_main.py
+F
+======================================================================
+FAIL: test_intersection (test_incorrect_main.TestMain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ihorpyvovarnyk/Workspace/university-python/L13/3_unittest/v4/test_incorrect_main.py", line 8, in test_intersection
+    assert (1, 2) == result, result
+AssertionError: (0, 0)
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)
+```
+
+З виводу “AssertionError: (0, 0)” бачимо, що у виняток був переданий результат отриманий від функції, що може допомогти при при визначенні причини проблеми при непроходженні тесту.
+
+### Методи assert класу unittest.TestCase
+
+Клас “unittest.TestCase” має ряд методів для різних видів перевірок. Використаємо один з них, а саме “assertEqual” для перевірки еквівалентності значень.
+
+`test_main.py`
+```python
+import unittest
+from main import intersection
+
+class TestMain(unittest.TestCase):
+
+    def test_intersection(self):
+        result = intersection(1, 2, 5, -1, 2, 3)
+        self.assertEqual((1, 2), result)
+```
+
+Запустимо даний тест:
+
+```shell
+$ python -m unittest test_main.py 
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+```
+
+Тепер запустимо даний тест з некоректною версією функції:
+
+```shell
+$ python -m unittest test_incorrect_main.py 
+F
+======================================================================
+FAIL: test_intersection (test_incorrect_main.TestMain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ihorpyvovarnyk/Workspace/university-python/L13/3_unittest/v5/test_incorrect_main.py", line 8, in test_intersection
+    self.assertEqual((1, 2), result)
+AssertionError: Tuples differ: (1, 2) != (0, 0)
+
+First differing element 0:
+1
+0
+
+- (1, 2)
++ (0, 0)
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (failures=1)
+```
+
+З виводу бачимо, що при невиконанні умови викидається виняток “AssertionError”, що містить деталі про різницю між очікуваним та отриманим значенням.
+
+“unittest.TestCase” має і ряд інших методів на різні випадки:
+
+| Метод | Перевіряє, що ...  | Доступний з версії Python  |
+|---------------------------|----------------------|-----|
+| assertEqual(a, b)         | a == b               |     |
+| assertNotEqual(a, b)      | a != b               |     |
+| assertTrue(x)             | bool(x) is True      |     |
+| assertFalse(x)            | bool(x) is False     |     |
+| assertIs(a, b)            | a is b               | 3.1 |
+| assertIsNot(a, b)         | a is not b           | 3.1 |
+| assertIsNone(x)           | x is None            | 3.1 |
+| assertIsNotNone(x)        | x is not None        | 3.1 |
+| assertIn(a, b)            | a in b               | 3.1 |
+| assertNotIn(a, b)         | a not in b           | 3.1 |
+| assertIsInstance(a, b)    | isinstance(a, b)     | 3.1 |
+| assertNotIsInstance(a, b) | not isinstance(a, b) | 3.1 |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
