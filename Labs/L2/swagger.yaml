@@ -1,0 +1,377 @@
+swagger: "2.0"
+info:
+  description: "Advertisements service REST API"
+  version: "1.0.0"
+  title: "Advertisements service"
+  contact:
+    email: "ihor.pyvovarnyk@globallogic.com"
+host: "my-advertisements.io"
+basePath: "/v1"
+tags:
+  - name: "advertisement"
+    description: "Operations on advertisements"
+  - name: "user"
+    description: "Operations on users"
+schemes:
+  - "https"
+  - "http"
+paths:
+  /advertisement:
+    get:
+      tags:
+        - "advertisement"
+      summary: "Finds advertisements"
+      operationId: "findAdvertisements"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "status"
+          in: "query"
+          description: "Target status"
+          type: "string"
+        - name: "author"
+          in: "query"
+          description: "Author id"
+          type: "integer"
+        - name: "category"
+          in: "query"
+          description: "Category id"
+          type: "integer"
+      responses:
+        "200":
+          description: "Success"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Advertisement"
+        "400":
+          description: "Invalid arguments"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+      security:
+        - basic_auth: []
+    post:
+      tags:
+        - "advertisement"
+      summary: "Add a new advertisement"
+      operationId: "addAdvertisement"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "A new advertisement"
+          required: true
+          schema:
+            $ref: "#/definitions/Advertisement"
+      responses:
+        "200":
+          description: "Success"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "405":
+          description: "Invalid arguments"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+      security:
+        - basic_auth: []
+  /advertisement/{advertisementId}:
+    get:
+      tags:
+        - "advertisement"
+      summary: "Find advertisement by ID"
+      operationId: "getAdvertisementById"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "advertisementId"
+          in: "path"
+          description: "ID of advertisement to return"
+          required: true
+          type: "integer"
+          format: "int64"
+      responses:
+        "200":
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Advertisement"
+        "400":
+          description: "Invalid arguments"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+      security:
+        - basic_auth: []
+    post:
+      tags:
+        - "advertisement"
+      summary: "Updates an advertisement with provided data"
+      operationId: "updatedvertisementWithData"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "advertisementId"
+          in: "path"
+          description: "ID of an advertisement"
+          required: true
+          type: "integer"
+          format: "int64"
+        - in: "body"
+          name: "body"
+          description: "Modified advertisement"
+          required: true
+          schema:
+            $ref: "#/definitions/Advertisement"
+      responses:
+        "200":
+          description: "Success"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "405":
+          description: "Invalid arguments"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+      security:
+        - basic_auth: []
+    delete:
+      tags:
+        - "advertisement"
+      summary: "Deletes an advertisement"
+      operationId: "deleteAdvertisement"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "advertisementId"
+          in: "path"
+          description: "ID of an advertisement"
+          required: true
+          type: "integer"
+          format: "int64"
+      responses:
+        "200":
+          description: "Success"
+        "400":
+          description: "Invalid arguments"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+      security:
+        - basic_auth: []
+  /user:
+    post:
+      tags:
+        - "user"
+      summary: "Create user"
+      description: "This can only be done by the logged in user."
+      operationId: "createUser"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Created user object"
+          required: true
+          schema:
+            $ref: "#/definitions/User"
+      responses:
+        "200":
+          description: "Success"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+  /user/{username}:
+    get:
+      tags:
+        - "user"
+      summary: "Get user by user name"
+      operationId: "getUserByName"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "username"
+          in: "path"
+          description: "The name that needs to be fetched. Use user1 for testing. "
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "Success"
+          schema:
+            $ref: "#/definitions/User"
+        "400":
+          description: "Invalid arguments"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+    put:
+      tags:
+        - "user"
+      summary: "Updated user"
+      description: "This can only be done by the logged in user."
+      operationId: "updateUser"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "username"
+          in: "path"
+          description: "name that need to be updated"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "Updated user object"
+          required: true
+          schema:
+            $ref: "#/definitions/User"
+      responses:
+        "200":
+          description: "Success"
+        "400":
+          description: "Invalid arguments"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+    delete:
+      tags:
+        - "user"
+      summary: "Delete user"
+      description: "This can only be done by the logged in user."
+      operationId: "deleteUser"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "username"
+          in: "path"
+          description: "The name that needs to be deleted"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "Success"
+        "400":
+          description: "Invalid arguments"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "404":
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+securityDefinitions:
+  basic_auth:
+    type: basic
+definitions:
+  Advertisement:
+    type: "object"
+    required:
+      - "id"
+      - "title"
+      - "author"
+      - "category"
+      - "active"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      title:
+        type: "string"
+      description:
+        type: "string"
+      author:
+        $ref: "#/definitions/User"
+      category:
+        $ref: "#/definitions/Category"
+      active:
+        type: "string"
+  Category:
+    type: "object"
+    required:
+      - "id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+      parent:
+        $ref: "#/definitions/Category"
+  User:
+    type: "object"
+    required:
+      - "id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      username:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+      password:
+        type: "string"
+      phone:
+        type: "string"
+  ApiResponse:
+    type: "object"
+    required:
+      - "code"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      type:
+        type: "string"
+      message:
+        type: "string"
