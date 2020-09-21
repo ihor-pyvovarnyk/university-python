@@ -1,7 +1,6 @@
 from flask import Flask
-app = Flask(__name__)
-ASSESSMENT_ID = 3
 
-@app.route(f"/hello-world-{ASSESSMENT_ID}")
-def hello_world():
-    return f"Hello, World {ASSESSMENT_ID}"
+from blueprint import api_blueprint
+
+app = Flask(__name__)
+app.register_blueprint(api_blueprint, url_prefix="/api/v1")

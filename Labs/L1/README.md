@@ -34,7 +34,7 @@
 2. Інсталювати Python обраної версії за варіантом за допомогою [pyenv](https://github.com/pyenv/pyenv)    
 3. Створити та активувати віртуальне Python середовище з інтерпретатором версії згідно з варіантом; якщо директорія віртуального середовища створена в директорії проекту, додати її в файл `.gitignore` 
 4. Добавити `Flask` в залежності проекту та інсталювати його
-5. Реалізувати адресу `api/v1/hello-world-{номер варіанту}`, що буде відповідати текстом `Hello World {номер варіанту}` зі статусом відповіді `200 OK`; Запустити та перевірити правильність виконання
+5. Реалізувати адресу `api/v1/hello-world-{номер варіанту}`, що буде відповідати текстом `Hello World {номер варіанту}` зі HTTP статусом відповіді `200 OK`; Запустити та перевірити правильність виконання
 6. Запустити проект використовуючи WSGI сервер (gunicorn, uWSGI чи інший на вибір)
     > На вибір щоб не паритись з сумісністю з Windows
 7. Закомітити та запушити створені файли у репозиторій у відповідну гілку
@@ -127,7 +127,7 @@ Flask додано в `poetry-lab-1/pyproject.toml`
 Перевірити:
 ```
 $ FLASK_APP=app.py flask run
-$ curl -v -XGET http://localhost:5000/hello-world-3
+$ curl -v -XGET http://localhost:5000/api/v1/hello-world-3
 ```
 
 ### Запустити проект використовуючи WSGI сервер
@@ -144,7 +144,7 @@ $ ~/.poetry/bin/poetry add gunicorn
 #### Запуск
 ```
 $ gunicorn -b 127.0.0.1:5000 app:app
-$ curl -v -XGET http://localhost:5000/hello-world-3
+$ curl -v -XGET http://localhost:5000/api/v1/hello-world-3
 ```
 
 ### Закомітити та запушити 
@@ -155,18 +155,6 @@ $ git commit -m "Lab 1"
 $ git push origin master
 ```
 
-4. Створити `requirements.txt` з `Flask` залежністю
-5. Встановити залежності `pip install -r requirements.txt'
-6. Створити `app.py` з кодом реалізації URI згідно з варіантом
-7. Запустити командою `FLASK_APP=app.py flask run`
-8. Перевірити командою `curl -XGET http://localhost:5000/hello-world-3`
-9. WSGI
+### Інструкція
 
-
-
-
-SQLAlchemy ORM
-https://docs.sqlalchemy.org/en/13/orm/
-https://alembic.sqlalchemy.org/en/latest/
-https://gunicorn.org/
-https://flask.palletsprojects.com/en/1.1.x/deploying/wsgi-standalone/#gunicorn
+Створити інструкцію по розгортанню та запуску проекту в файлі `README.md`.  
