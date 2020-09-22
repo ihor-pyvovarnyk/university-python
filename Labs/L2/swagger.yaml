@@ -405,7 +405,7 @@ components:
       - email
       type: object
       properties:
-        id:
+        uid:
           type: integer
         email:
           type: string
@@ -444,7 +444,7 @@ components:
       - funds
       type: object
       properties:
-        id:
+        uid:
           type: integer
         name:
           type: string
@@ -475,7 +475,7 @@ components:
       - id
       type: object
       properties:
-        id:
+        uid:
           type: integer
         from_wallet:
           type: integer
