@@ -40,7 +40,6 @@ def list_users():
 def create_user():
     user_data = UserToCreate().load(request.json)
     user = db_utils.create_entry(Users, **user_data)
-    uid = user.uid
     return jsonify(UserData().dump(user))
 
 

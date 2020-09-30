@@ -7,14 +7,13 @@ from sqlalchemy import (
     String,
     BigInteger,
     DateTime,
-    Binary,
     func,
 )
 from sqlalchemy import orm
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy_utils import force_auto_coercion, PasswordType
+
 
 DB_URI = os.getenv("DB_URI", "postgres://postgres:123456@localhost:5432/postgres")
 engine = create_engine(DB_URI)
@@ -23,8 +22,6 @@ Session = scoped_session(SessionFactory)
 
 BaseModel = declarative_base()
 
-force_auto_coercion()
-
 
 class Users(BaseModel):
     __tablename__ = "users"
@@ -32,12 +29,6 @@ class Users(BaseModel):
     uid = Column(Integer, primary_key=True)
     email = Column(String)
     password = Column(String)
-    password = Column(
-        Binary,
-        # PasswordType(schemes=['pbkdf2_sha512', 'md5_crypt'], deprecated=['md5_crypt']),
-        unique=False,
-        nullable=False,
-    )
     first_name = Column(String)
     last_name = Column(String)
 

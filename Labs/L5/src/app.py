@@ -5,7 +5,6 @@ from blueprint import api_blueprint
 from error_handlers import not_found, server_error
 
 app = Flask(__name__)
-bcrypt = Bcrypt(app)
 
 app.register_blueprint(api_blueprint, url_prefix="/api/v1")
 
