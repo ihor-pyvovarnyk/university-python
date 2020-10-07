@@ -141,7 +141,7 @@ $ ~/.poetry/bin/poetry add gunicorn
 ```
 #### Запуск
 ```
-$ gunicorn -b 127.0.0.1:5000 app:app
+$ gunicorn -b 127.0.0.1:5000 --log-level DEBUG app:app
 $ curl -v -XGET http://localhost:5000/api/v1/hello-world-3
 ```
 
