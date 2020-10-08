@@ -15,16 +15,23 @@ def list_users(email=None, first_name=None, last_name=None):
     return session.query(Users).filter(*filters).all()
 
 
-def list_wallets():
+def list_wallets(*filters):
     session = Session()
-    return session.query(Wallets).all()
+    return (
+        session.query(Wallets)
+        .join(Users)
+        .filter(*filters)
+        .all()
+    )
 
 
-def list_transactions_for_wallet(wallet_id):
+def list_transactions_for_wallet(user_uid, wallet_id):
     session = Session()
     return (
         session.query(Transactions)
+        .join(Wallets)
         .filter(
+            Wallets.owner_uid == user_uid,
             or_(
                 Transactions.from_wallet_uid == wallet_id,
                 Transactions.to_wallet_uid == wallet_id,
@@ -43,9 +50,9 @@ def create_entry(model_class, *, commit=True, **kwargs):
     return entry
 
 
-def get_entry_by_uid(model_class, uid):
+def get_entry_by_uid(model_class, uid, **kwargs):
     session = Session()
-    return session.query(model_class).filter_by(uid=uid).one()
+    return session.query(model_class).filter_by(uid=uid, **kwargs).one()
 
 
 def update_entry(entry, *, commit=True, **kwargs):
@@ -57,8 +64,8 @@ def update_entry(entry, *, commit=True, **kwargs):
     return entry
 
 
-def delete_entry(model_class, uid, *, commit=True):
+def delete_entry(model_class, uid, *, commit=True, **kwargs):
     session = Session()
-    session.query(model_class).filter_by(uid=uid).delete()
+    session.query(model_class).filter_by(uid=uid, **kwargs).delete()
     if commit:
         session.commit()
