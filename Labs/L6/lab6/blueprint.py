@@ -1,14 +1,14 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt import jwt_required, current_identity
 
-import db_utils
-from middlewares import (
+from lab6 import db_utils
+from lab6.middlewares import (
     db_lifecycle,
     only_admin_access,
-    only_target_authorized_user_access,
+    only_target_authorized_user_access_or_admin,
 )
-from models import Users, Wallets, Transactions
-from schemas import (
+from lab6.models import Users, Wallets, Transactions
+from lab6.schemas import (
     UserData,
     ListUsersRequest,
     UserToCreate,
@@ -46,7 +46,7 @@ def create_user():
 
 @api_blueprint.route("/user/<int:user_id>", methods=["GET"])
 @jwt_required()
-@only_target_authorized_user_access
+@only_target_authorized_user_access_or_admin
 @db_lifecycle
 def get_user_by_id(user_id):
     user = db_utils.get_entry_by_uid(Users, user_id)
@@ -55,7 +55,7 @@ def get_user_by_id(user_id):
 
 @api_blueprint.route("/user/<int:user_id>", methods=["PUT"])
 @jwt_required()
-@only_target_authorized_user_access
+@only_target_authorized_user_access_or_admin
 @db_lifecycle
 def update_user(user_id):
     user_data = UserToUpdate().load(request.json)
@@ -66,7 +66,7 @@ def update_user(user_id):
 
 @api_blueprint.route("/user/<int:user_id>", methods=["DELETE"])
 @jwt_required()
-@only_target_authorized_user_access
+@only_target_authorized_user_access_or_admin
 @db_lifecycle
 def delete_user(user_id):
     db_utils.delete_entry(Users, user_id)
@@ -77,9 +77,10 @@ def delete_user(user_id):
 @jwt_required()
 @db_lifecycle
 def list_wallets():
-    wallets = db_utils.list_wallets(
-        Wallets.owner_uid == current_identity.id
-    )
+    if current_identity.is_admin:
+        wallets = db_utils.list_wallets()
+    else:
+        wallets = db_utils.list_wallets(Wallets.owner_uid == current_identity.id)
     return jsonify(WalletData(many=True).dump(wallets))
 
 
@@ -118,7 +119,10 @@ def update_wallet(wallet_id):
 @jwt_required()
 @db_lifecycle
 def delete_wallet(wallet_id):
-    db_utils.delete_entry(Wallets, wallet_id, owner_uid=current_identity.id)
+    wallet = db_utils.get_entry_by_uid(
+        Wallets, wallet_id, owner_uid=current_identity.id
+    )
+    db_utils.delete_entry(Wallets, wallet.uid)
     return jsonify(StatusResponse().dump({"code": 200}))
 
 

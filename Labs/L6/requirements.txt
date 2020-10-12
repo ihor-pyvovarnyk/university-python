@@ -4,4 +4,7 @@ sqlalchemy
 psycopg2-binary
 alembic
 marshmallow
+lask-bcrypt
 Flask-JWT
+Flask-Testing
+coverage

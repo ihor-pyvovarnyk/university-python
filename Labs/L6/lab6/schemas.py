@@ -1,3 +1,4 @@
+from flask_bcrypt import generate_password_hash
 from marshmallow import validate, Schema, fields
 
 
@@ -25,14 +26,18 @@ class UserData(Schema):
 
 class UserToCreate(Schema):
     email = fields.String(validate=validate.Email())
-    password = fields.String()
+    password = fields.Function(
+        deserialize=lambda obj: generate_password_hash(obj), load_only=True
+    )
     first_name = fields.String()
     last_name = fields.String()
 
 
 class UserToUpdate(Schema):
     email = fields.String(validate=validate.Email())
-    password = fields.String()
+    password = fields.Function(
+        deserialize=lambda obj: generate_password_hash(obj), load_only=True
+    )
     first_name = fields.String()
     last_name = fields.String()
 
@@ -40,6 +45,7 @@ class UserToUpdate(Schema):
 class WalletData(Schema):
     uid = fields.Integer()
     name = fields.String()
+    owner_uid = fields.Integer()
     funds = fields.Integer()
 
 
