@@ -1,6 +1,4 @@
-from sqlalchemy import or_
-
-from models import Session, Users, Wallets, Transactions
+from lab5.models import Session, Users, Wallets, Transactions
 
 
 def list_users(email=None, first_name=None, last_name=None):
@@ -27,16 +25,24 @@ def list_wallets(*filters):
 
 def list_transactions_for_wallet(user_uid, wallet_id):
     session = Session()
-    return (
+    session.query(Wallets).filter_by(uid=wallet_id, owner_uid=user_uid).one()
+    transactions_from = (
         session.query(Transactions)
-        .join(Wallets)
+        .join(Wallets, Transactions.from_wallet_uid == Wallets.uid)
         .filter(
-            Wallets.owner_uid == user_uid,
-            or_(
-                Transactions.from_wallet_uid == wallet_id,
-                Transactions.to_wallet_uid == wallet_id,
-            )
+            Wallets.owner_uid == user_uid, Transactions.from_wallet_uid == wallet_id
         )
+    )
+    transactions_to = (
+        session.query(Transactions)
+        .join(Wallets, Transactions.to_wallet_uid == Wallets.uid)
+        .filter(
+            Wallets.owner_uid == user_uid, Transactions.to_wallet_uid == wallet_id
+        )
+    )
+    return (
+        transactions_from.union(transactions_to)
+        .order_by(Transactions.datetime)
         .all()
     )
 

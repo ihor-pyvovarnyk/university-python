@@ -1,19 +1,22 @@
-export PYTHONPATH=$(shell pwd)/src
+export ENV_BIN=env/bin
+export PYTHONPATH=$(shell pwd)
+export DATABASE_CONTAINER_NAME=lab5-db
 
-db:
-	docker run --name=l5-db -e POSTGRES_PASSWORD=123456 -p 5432:5432 -d postgres
+db-up: db-down
+	docker run --name=$(DATABASE_CONTAINER_NAME) -e POSTGRES_PASSWORD=123456 -p 5432:5432 -d postgres
 	sleep 5
 	$(MAKE) apply-migrations
 
 apply-migrations:
-	$(MAKE) -C src apply-migrations
+	$(ENV_BIN)/alembic upgrade head
 
-down:
-	docker kill l5-db
-	docker rm l5-db
+db-down:
+	docker rm -f $(DATABASE_CONTAINER_NAME) || true
 
-run:
-	FLASK_APP=src/app.py FLASK_ENV=development flask run
+run-with-flask: export FLASK_APP=lab5/app.py
+run-with-flask: export FLASK_ENV=development
+run-with-flask: db-up
+	flask run
 
-gunicorn:
-	gunicorn -b 127.0.0.1:5000 --log-level DEBUG app:app
+run-with-gunicorn: db-up
+	gunicorn -b 127.0.0.1:5000 --log-level DEBUG lab5.app:app

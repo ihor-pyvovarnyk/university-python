@@ -7,6 +7,7 @@ from sqlalchemy import (
     String,
     BigInteger,
     DateTime,
+    Binary,
     func,
 )
 from sqlalchemy import orm
@@ -28,7 +29,7 @@ class Users(BaseModel):
 
     uid = Column(Integer, primary_key=True)
     email = Column(String)
-    password = Column(String)
+    password = Column(Binary)
     first_name = Column(String)
     last_name = Column(String)
 
