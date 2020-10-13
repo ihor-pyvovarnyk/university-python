@@ -75,10 +75,3 @@ def delete_entry(model_class, uid, *, commit=True, **kwargs):
     session.query(model_class).filter_by(uid=uid, **kwargs).delete()
     if commit:
         session.commit()
-
-
-def delete_all_entries(model_class, commit=True):
-    session = Session()
-    session.query(model_class).delete()
-    if commit:
-        session.commit()
