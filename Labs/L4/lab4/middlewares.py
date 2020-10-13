@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from functools import wraps
 
-from models import Session
+from lab4.models import Session
 
 
 def db_lifecycle(func):

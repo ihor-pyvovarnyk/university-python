@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request
 
-import db_utils
-from middlewares import db_lifecycle
-from models import Users, Wallets, Transactions
-from schemas import (
+from lab4 import db_utils
+from lab4.middlewares import db_lifecycle
+from lab4.models import Users, Wallets, Transactions
+from lab4.schemas import (
     Credentials,
     AccessToken,
     UserData,
@@ -109,13 +109,14 @@ def delete_wallet(wallet_id):
 def send_funds(wallet_id):
     transaction_data = FundsToSend().load(request.json)
 
-    from_wallet = db_utils.get_entry_by_uid(Wallets, wallet_id)
-    assert from_wallet.funds > transaction_data["amount"], "Not enough funds"
-    db_utils.update_entry(
-        from_wallet,
-        funds=Wallets.funds - transaction_data["amount"],
-        commit=False,
-    )
+    if wallet_id != 0:
+        from_wallet = db_utils.get_entry_by_uid(Wallets, wallet_id)
+        assert from_wallet.funds > transaction_data["amount"], "Not enough funds"
+        db_utils.update_entry(
+            from_wallet,
+            funds=Wallets.funds - transaction_data["amount"],
+            commit=False,
+        )
 
     to_wallet = db_utils.get_entry_by_uid(Wallets, transaction_data["to_wallet"])
     db_utils.update_entry(
@@ -126,7 +127,7 @@ def send_funds(wallet_id):
 
     transaction = db_utils.create_entry(
         Transactions,
-        from_wallet_uid=wallet_id,
+        from_wallet_uid=wallet_id or None,
         to_wallet_uid=transaction_data["to_wallet"],
         amount=transaction_data["amount"],
     )

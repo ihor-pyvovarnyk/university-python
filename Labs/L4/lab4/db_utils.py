@@ -1,6 +1,6 @@
 from sqlalchemy import or_
 
-from models import Session, Users, Wallets, Transactions
+from lab4.models import Session, Users, Wallets, Transactions
 
 
 def list_users(email=None, first_name=None, last_name=None):
@@ -15,21 +15,32 @@ def list_users(email=None, first_name=None, last_name=None):
     return session.query(Users).filter(*filters).all()
 
 
-def list_wallets():
+def list_wallets(*filters):
     session = Session()
-    return session.query(Wallets).all()
+    return (
+        session.query(Wallets)
+        .join(Users)
+        .filter(*filters)
+        .all()
+    )
 
 
 def list_transactions_for_wallet(wallet_id):
     session = Session()
-    return (
+    session.query(Wallets).filter_by(uid=wallet_id).one()
+    transactions_from = (
         session.query(Transactions)
-        .filter(
-            or_(
-                Transactions.from_wallet_uid == wallet_id,
-                Transactions.to_wallet_uid == wallet_id,
-            )
-        )
+        .join(Wallets, Transactions.from_wallet_uid == Wallets.uid)
+        .filter(Transactions.from_wallet_uid == wallet_id)
+    )
+    transactions_to = (
+        session.query(Transactions)
+        .join(Wallets, Transactions.to_wallet_uid == Wallets.uid)
+        .filter(Transactions.to_wallet_uid == wallet_id)
+    )
+    return (
+        transactions_from.union(transactions_to)
+        .order_by(Transactions.datetime)
         .all()
     )
 
@@ -43,9 +54,9 @@ def create_entry(model_class, *, commit=True, **kwargs):
     return entry
 
 
-def get_entry_by_uid(model_class, uid):
+def get_entry_by_uid(model_class, uid, **kwargs):
     session = Session()
-    return session.query(model_class).filter_by(uid=uid).one()
+    return session.query(model_class).filter_by(uid=uid, **kwargs).one()
 
 
 def update_entry(entry, *, commit=True, **kwargs):
@@ -57,8 +68,8 @@ def update_entry(entry, *, commit=True, **kwargs):
     return entry
 
 
-def delete_entry(model_class, uid, *, commit=True):
+def delete_entry(model_class, uid, *, commit=True, **kwargs):
     session = Session()
-    session.query(model_class).filter_by(uid=uid).delete()
+    session.query(model_class).filter_by(uid=uid, **kwargs).delete()
     if commit:
         session.commit()
