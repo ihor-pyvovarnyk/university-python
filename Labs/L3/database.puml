@@ -7,7 +7,7 @@ hide stereotypes
 table(users) {
     uid: integer
     email: string
-    password: string
+    password: bytea
     first_name: string
     last_name: string
 }
