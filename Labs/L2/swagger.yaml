@@ -448,6 +448,8 @@ components:
           type: integer
         name:
           type: string
+        owner_uid:
+          type: integer
         funds:
           type: integer
     WalletToCreate:
