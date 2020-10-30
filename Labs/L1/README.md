@@ -24,10 +24,11 @@
 Вимоги до конкретного варіанту можна визначити наступним чином (де `student_id` це номер варіанту студента):
 ```python
 >>> from itertools import product
->>> list(product(
+>>> variants = list(product(
 ...     ('python 3.8.*', 'python 3.7.*', 'python 3.6.*'), 
 ...     ('venv + requirements.txt', 'virtualenv + requirements.txt', 'poetry', 'pipenv')
-... ))[student_id - 1]
+... ))
+>>> variants[student_id % len(variants) - 1]
 ```
 
 При попередньому узгодженню з викладачем можна 
